@@ -19,8 +19,6 @@ import Developer from "./pages/Developer";
 import ExecutionDashboard from "./pages/ExecutionDashboard";
 import Search from "./pages/Search";
 import Layout from "./components/Layout";
-import Index from "./pages/Index";
-import WorkflowRunner from "./pages/WorkflowRunner";
 import { AuthProvider } from "./components/auth/AuthProvider";
 
 const queryClient = new QueryClient();
