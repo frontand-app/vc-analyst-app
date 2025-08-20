@@ -51,9 +51,9 @@ const Index = () => {
           
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
-            <Link to="/search">
+            <Link to="/search/loop-over-rows?mode=vc-analyst">
               <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-sm font-medium">
-                DISCOVER ALL WORKFLOWS
+                START VC ANALYSIS
               </Button>
             </Link>
             <Button 
