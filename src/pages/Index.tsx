@@ -34,19 +34,19 @@ const Index = () => {
           
           {/* Main Headline */}
           <h1 className="text-6xl md:text-7xl font-bold text-foreground mb-6 leading-tight">
-            1 FRONTEND.
+            VC ANALYST.
             <br />
             <span className="inline-flex items-center gap-2">
               <span className="text-6xl md:text-7xl">∞</span>
-              CLOUD APPS.
+              STARTUPS.
             </span>
           </h1>
           
           {/* Subheadline */}
           <p className="text-lg text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed">
-            CONNECT ANY DATA SOURCE TO ANY CLOUD APP
+            ANALYZE STARTUP DATA AND INVESTMENT OPPORTUNITIES
             <br />
-            WITH AI-POWERED WORKFLOWS.
+            WITH AI-POWERED VC RESEARCH WORKFLOWS.
           </p>
           
           {/* CTA Buttons */}

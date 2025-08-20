@@ -632,9 +632,9 @@ export const getWorkflow = (id: string): WorkflowConfig | undefined => {
   return workflows[id];
 };
 
-// Helper function to get all workflows
+// Helper function to get all workflows - VC Analyst only shows Loop Over Rows
 export const getAllWorkflows = (): WorkflowConfig[] => {
-  return Object.values(workflows);
+  return [workflows['loop-over-rows']].filter(Boolean);
 };
 
 // Helper function to get workflows by category/status
