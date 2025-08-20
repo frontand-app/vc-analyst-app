@@ -1130,9 +1130,9 @@ OUTPUT (JSON only; array with single element):
                       </div>
 
                         <div>
-                          <label className="text-sm font-medium text-foreground mb-2 block">Output schema (JSON instruction)</label>
+                          <label className="text-sm font-medium text-foreground mb-2 block">Output Format (Optional)</label>
                           <Textarea
-                            placeholder={`{\n  "column_name": "value to extract",\n  "another_field": "..."\n}\n\nTip: You can leave this empty. We'll infer JSON by analyzing the first row.`}
+                            placeholder={`Investment Score: 1-10 rating\nMarket Size: Small/Medium/Large\nRecommendation: Pass/Consider/Strong Interest\n\nTip: Leave empty to let AI decide the best output format.`}
                             value={inputValues.output_schema || ''}
                             onChange={(e) => handleInputChange('output_schema', e.target.value)}
                             className="min-h-[140px] resize-none"

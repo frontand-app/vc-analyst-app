@@ -45,8 +45,7 @@ const App = () => (
               <Route path="/flows/:id" element={<Navigate to="/search/:id" replace />} />
               <Route path="/search" element={<Search />} />
               <Route path="/search/:id" element={<WorkflowRunner />} />
-              {/* Force VC analyst mode for loop-over-rows */}
-              <Route path="/search/loop-over-rows" element={<Navigate to="/search/loop-over-rows?mode=vc-analyst" replace />} />
+              {/* No redirect needed - WorkflowRunner will handle the mode */}
               <Route path="/workflows/:id" element={<WorkflowRedirect />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/executions" element={<ExecutionDashboard />} />

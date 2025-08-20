@@ -36,7 +36,7 @@ export const workflows: Record<string, WorkflowConfig> = {
         id: 'investment-scoring',
         title: 'Investment Scoring',
         description: 'Score startups for investment potential',
-        prompt: 'Analyze each startup and provide: Investment Score (1-10), Market Size (Small/Medium/Large), Competitive Advantage, Team Quality, and Investment Recommendation (Pass/Consider/Strong Interest).',
+        prompt: 'Analyze each startup for investment potential. Provide: Investment Score (1-10), Market Size (Small/Medium/Large), Competitive Advantage, Team Quality Assessment, and Investment Recommendation (Pass/Consider/Strong Interest).',
         sampleData: {
           csv_data: `Company,Website,Industry,Stage
 TechCorp,techcorp.com,SaaS,Series A
