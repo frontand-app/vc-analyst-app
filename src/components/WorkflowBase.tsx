@@ -157,13 +157,13 @@ const WorkflowBase: React.FC<WorkflowBaseProps> = ({ config }) => {
   const authRequired = !testMode && !user; // sign-in gating (no inline error)
   const inputBadgeClass = highlightOutput ? 'bg-muted text-muted-foreground' : 'bg-primary text-primary-foreground';
   const outputBadgeClass = highlightOutput ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground';
-  // VC Analyst configurable fund rules (generic defaults, user-editable)
+  // VC Analyst configurable fund rules (realistic defaults, user-editable)
   const [vcStages, setVcStages] = useState<string>('Pre-seed, Seed, Series A');
   const [vcVintageMonths, setVcVintageMonths] = useState<string>('24');
   const [vcTrlMin, setVcTrlMin] = useState<string>('5');
-  const [vcSectors, setVcSectors] = useState<string>('Sector A, Sector B');
+  const [vcSectors, setVcSectors] = useState<string>('ClimateTech, EnergyTech, AI/ML applied to Energy');
   const [vcGeos, setVcGeos] = useState<string>('North America, Europe');
-  const [vcFundName, setVcFundName] = useState<string>('Your Fund');
+  const [vcFundName, setVcFundName] = useState<string>('EnergyTech Ventures');
 
   const handleMockModeToggle = (isMockMode: boolean) => {
     setTestMode(isMockMode);
