@@ -618,6 +618,11 @@ exclusion_reasons: Array of failed rules`;
         };
       }
 
+      // Ensure prompt is included for VC analyst mode
+      if (config.id === 'loop-over-rows' && mode === 'vc-analyst' && !requestData.prompt) {
+        requestData.prompt = buildVcAnalystPrompt();
+      }
+      
       console.log('Sending request to:', config.endpoint, requestData);
 
       // Create execution record (for dashboard) when starting
