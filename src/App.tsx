@@ -11,6 +11,7 @@ import WorkflowRunner from "@/pages/WorkflowRunner";
 import Dashboard from "@/pages/Dashboard";
 import ExecutionDashboard from "@/pages/ExecutionDashboard";
 import Auth from "@/pages/Auth";
+import EmailConfirm from "@/pages/EmailConfirm";
 import OAuthCallbackPage from "@/pages/OAuthCallback";
 import NotFound from "@/pages/NotFound";
 import { AuthProvider } from "@/components/auth/AuthProvider";
@@ -50,6 +51,7 @@ const App = () => (
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/executions" element={<ExecutionDashboard />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/auth/confirm" element={<EmailConfirm />} />
               <Route path="/oauth/callback/:service" element={<OAuthCallbackPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

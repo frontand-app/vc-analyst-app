@@ -10,6 +10,7 @@ export const SignUpForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const { signUp } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -42,11 +43,13 @@ export const SignUpForm = () => {
           />
         </div>
         {error && <div className="text-sm text-red-600">{error}</div>}
+        {success && <div className="text-sm text-green-600 bg-green-50 p-3 rounded-lg">{success}</div>}
         <Button className="w-full" onClick={async () => {
           try {
             setError(null);
+            setSuccess(null);
             await signUp(email, password);
-            navigate(redirect, { replace: true });
+            setSuccess('Account created! Please check your email for a confirmation link to complete setup.');
           } catch (e: any) {
             setError(e.message || 'Sign-up failed');
           }
