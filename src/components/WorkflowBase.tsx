@@ -1119,18 +1119,34 @@ OUTPUT (JSON only; array with single element):
                           />
                         )}
 
-                        <div>
-                          <label className="text-sm font-medium text-foreground mb-2 block">Task (Prompt)</label>
-                          <Textarea
-                            placeholder={mode === 'vc-analyst' ? 'VC Analyst prompt will be generated from the fund rules below...' : 'Describe the task for each row...'}
-                            value={inputValues.prompt || ''}
-                            onChange={(e) => handleInputChange('prompt', e.target.value)}
-                            className="min-h-[140px] max-h-[400px] resize-y"
-                          />
-                          <p className="text-xs text-muted-foreground mt-1">
-                            💡 Drag the bottom-right corner to expand this box and see your full prompt
-                          </p>
-                      </div>
+                        {mode !== 'vc-analyst' && (
+                          <div>
+                            <label className="text-sm font-medium text-foreground mb-2 block">Task (Prompt)</label>
+                            <Textarea
+                              placeholder="Describe the task for each row..."
+                              value={inputValues.prompt || ''}
+                              onChange={(e) => handleInputChange('prompt', e.target.value)}
+                              className="min-h-[140px] max-h-[400px] resize-y"
+                            />
+                            <p className="text-xs text-muted-foreground mt-1">
+                              💡 Drag the bottom-right corner to expand this box and see your full prompt
+                            </p>
+                          </div>
+                        )}
+                        
+                        {mode === 'vc-analyst' && (
+                          <div>
+                            <label className="text-sm font-medium text-foreground mb-2 block">Analysis Prompt</label>
+                            <div className="bg-muted/50 border border-border rounded-lg p-4">
+                              <p className="text-sm text-muted-foreground">
+                                ✨ <strong>Auto-generated from your fund rules above</strong>
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-2">
+                                The VC analysis prompt is automatically constructed from your fund configuration (name, stages, vintage, TRL, sectors, geographies). This ensures consistent evaluation criteria across all startups.
+                              </p>
+                            </div>
+                          </div>
+                        )}
 
                         <div>
                           <label className="text-sm font-medium text-foreground mb-2 block">Output Format (Optional)</label>

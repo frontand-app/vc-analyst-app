@@ -1,0 +1,721 @@
+{
+  "name": "pietro-edp-vc-analyst",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "seconds",
+              "secondsInterval": 75
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -560,
+        0
+      ],
+      "id": "a0a272a7-7a8a-440a-8da3-82a70407883e",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "55df6570-d9fd-4714-aeca-5d791a99c744",
+              "leftValue": "={{ $json.startup_name }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        160,
+        0
+      ],
+      "id": "620363ef-7125-4a89-b92d-b15bbca444c2",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        960,
+        0
+      ],
+      "id": "daa45125-9ffb-4d1b-9c03-4655e0e6f37b",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -120,
+        0
+      ],
+      "id": "3f7db6fb-9235-40de-96f4-65b0c7ea8f9e",
+      "name": "Loop Over Items",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {
+          "temperature": 0.1
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        380,
+        160
+      ],
+      "id": "b4eb1210-391d-430c-823e-63d42ceb2d80",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "RDsQqPjVzzUf0NVq",
+          "name": "SCAILEMainKey"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "try {\n  /****************************************************************\n   * 1.  Helper: recursively flatten an object\n   ****************************************************************/\n  function flattenObject(obj, prefix = '') {\n    const out = {};\n    for (const k in obj) {\n      if (!Object.prototype.hasOwnProperty.call(obj, k)) continue;\n\n      const v       = obj[k];\n      const newKey  = prefix ? `${prefix}.${k}` : k;\n\n      // – plain object → recurse\n      if (v && typeof v === 'object' && !Array.isArray(v)) {\n        Object.assign(out, flattenObject(v, newKey));\n\n      // – array  → recurse over indices\n      } else if (Array.isArray(v)) {\n        v.forEach((entry, i) => {\n          if (entry && typeof entry === 'object') {\n            Object.assign(out, flattenObject(entry, `${newKey}.${i}`));\n          } else {\n            out[`${newKey}.${i}`] = entry;\n          }\n        });\n\n      // – primitive → keep\n      } else {\n        out[newKey] = v;\n      }\n    }\n    return out;\n  }\n\n  /****************************************************************\n   * 2.  Crunch every incoming bundle\n   ****************************************************************/\n  const bundles = $input.all();   // every inbound item\n  const rows    = [];\n\n  bundles.forEach(bundle => {\n    const dataArr = bundle.json?.data;\n\n    // If the bundle has a json.data array → emit one row per element\n    if (Array.isArray(dataArr)) {\n      dataArr.forEach(entry => rows.push(flattenObject(entry)));\n\n    // Otherwise just flatten the bundle’s json itself\n    } else if (bundle.json) {\n      rows.push(flattenObject(bundle.json));\n    }\n  });\n\n  /****************************************************************\n   * 3.  Return rows (Make/n8n will output one item per object)\n   ****************************************************************/\n  return rows;\n\n} catch (err) {\n  throw new Error('Flattening failed: ' + err.message);\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1160,
+        0
+      ],
+      "id": "9a6ae4e7-7a4a-4e80-9e3b-11d09d429104",
+      "name": "format-code"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1fDcN6oMc_p_UZfrsrha9E7puoO2fIqsdIVkirRFVXNA/edit?gid=463059905#gid=463059905",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1401081600,
+          "mode": "list",
+          "cachedResultName": "Data_v2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1fDcN6oMc_p_UZfrsrha9E7puoO2fIqsdIVkirRFVXNA/edit#gid=1401081600"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "Companies"
+          ],
+          "schema": [
+            {
+              "id": "Company ID",
+              "displayName": "Company ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Companies",
+              "displayName": "Companies",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Last Known Valuation",
+              "displayName": "Last Known Valuation",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Financing Status Note",
+              "displayName": "Financing Status Note",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Employees",
+              "displayName": "Employees",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Keywords",
+              "displayName": "Keywords",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Primary Industry Code",
+              "displayName": "Primary Industry Code",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Verticals",
+              "displayName": "Verticals",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Financing Date",
+              "displayName": "Last Financing Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Financing Size",
+              "displayName": "Last Financing Size",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Financing Deal Type",
+              "displayName": "Last Financing Deal Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Active Investors",
+              "displayName": "Active Investors",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Primary Contact",
+              "displayName": "Primary Contact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Ownership Status",
+              "displayName": "Ownership Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company Financing Status",
+              "displayName": "Company Financing Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Year Founded",
+              "displayName": "Year Founded",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "HQ Location",
+              "displayName": "HQ Location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Website",
+              "displayName": "Website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "View Company Online",
+              "displayName": "View Company Online",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1400,
+        0
+      ],
+      "id": "a9ba5b45-870c-4311-90e7-4ac6c0578503",
+      "name": "save-output",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "y83s4dpWcYkOaLrS",
+          "name": "Google Sheets tech@scaile"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=```markdown\n## INPUT ##\n{{ JSON.stringify($node[\"If\"].json) }}\n\n<!--\nYou are an intelligent assistant for venture-capital and strategic-investment workflows.\nResponsibilities:\n1. Convert free-form theses into structured YAML profiles.\n2. Interpret startup profiles, compute objective & relevance scores.\n3. Classify startups on strategic fit.\n4. Produce memos / markdown summaries aligned to fund strategy.\nRespond only with structured outputs unless asked otherwise.\n-->\n\n# 🧠 UNIVERSAL INVESTMENT INTELLIGENCE SYSTEM (UIIS v4.0)\n\n## TASK\n\n### 1 — Fit Check  \nEvaluate the startup in **INPUT** against the five rules below.  \nRecord any rule that fails inside an array called `exclusion_reasons`.\n\n| Rule ID | Filter            | Pass criterion |\n|---------|-------------------|----------------|\n| F1      | Stage             | Pre-seed · Seed · Series A |\n| F2      | Launch vintage    | Founded ≤ 24 months ago |\n| F3      | TRL               | ≥ 5 |\n| F4      | Sector            | ClimateTech · EnergyTech · AI/ML applied to Energy |\n| F5      | Geography (HQ)    | North America or Europe |\n\n**If `exclusion_reasons` is not empty → classify the deal as `Out of Scope` and skip Step 2.**\n\n### 2 — Scoring & Classification  \n*(Only when `exclusion_reasons` is empty.)*\n\n1. **Taxonomy mapping** – map `sector → subsector → use_case` using the UIIS multi-layer taxonomy.\n\n2. **Objective score (0-8)**  \n   | Criterion | Points | Cap |\n   |-----------|--------|-----|\n   | Revenue or paying pilot with major energy client | +3 | 3 |\n   | Strategic / industrial partner                   | +3 | 3 (rev+partner combined) |\n   | Funding from industrial VC                       | +1 | — |\n   | Subsector match                                  | +1 | — |\n   | Geography match (HQ ∈ NA/EU)                     | +1 | — |\n   | IP filed / granted                               | +1 | — |\n   | Stage match (Pre-seed, Seed, Series A)           | +1 | — |\n   | Impact-aligned                                   | +1 | — |\n   *Maximum = 8.*\n\n3. **Relevance score (0-100 %)**\n\n```\n\nrelevance = 0.35*subsector\\_match +\n0.20*stage\\_match +\n0.15*geography\\_match +\n0.10*ip\\_presence +\n0.10*impact\\_alignment +\n0.10*founder\\_match      # academic OR repeat OR technical\n\n```\n\n4. **Classification**\n\n| Label          | Conditions                                           |\n|----------------|------------------------------------------------------|\n| High Priority  | objective_score ≥ 6  AND relevance_score ≥ 75        |\n| Medium Fit     | objective_score ≥ 4  AND relevance_score ≥ 50        |\n| Not Relevant   | anything below Medium Fit                            |\n| Out of Scope   | `exclusion_reasons` non-empty (fails Step 1)         |\n\n### 3 — Plain-text Summary  \nProduce a line-break-separated summary without markdown decorations:\n\n```\n\nStartup: <name>\nStage: <stage>\nSector: \\<sector → subsector → use\\_case>\nGeography: \\<hq\\_country>\nType: <labels>\nTraction: <list>\nIP: <status>\nFounder Profile: <signals>\nImpact-Aligned: \\<yes/no>\nObjective Score: <x>/8\nRelevance Score: <y>%\nClassification: \\<High Priority | Medium Fit | Not Relevant | Out of Scope>\nStrategic Fit: <1–2 sentence rationale>\n\n````\n\n---\n\n## OUTPUT  \nReturn **JSON only** – one element array, never `[]`.\n\n```json\n[\n  {\n    \"Companies\": \"{{ $json.Companies }}\",\n    \"startup_name\": \"{{ $json.Companies }}\",\n    \"stage\": \"<Pre-seed | Seed | Series A | Later>\",          // leave blank if unknown\n    \"sector_path\": \"<main → sub → use_case>\",                 // blank if Out of Scope\n    \"objective_score\": <integer 0-8>,                         // 0 when Out of Scope\n    \"relevance_score\": <integer 0-100>,                       // 0 when Out of Scope\n    \"classification\": \"High Priority | Medium Fit | Not Relevant | Out of Scope\",\n    \"summary_txt\": \"<plain text summary (no markdown)>\",\n    \"exclusion_reasons\": [\"<F1 Stage>\", \"<F2 Launch vintage>\"] // empty array if none\n  }\n]\n````",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        400,
+        -20
+      ],
+      "id": "dbeb2a7e-8f8d-4473-aaba-5e6f0dff39db",
+      "name": "cluster"
+    },
+    {
+      "parameters": {
+        "content": "### Read the whole Google Sheet"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -380,
+        -100
+      ],
+      "typeVersion": 1,
+      "id": "4861e0c4-b152-4a86-bfd6-a195d46244b7",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "### Loop over each row"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -180,
+        -100
+      ],
+      "typeVersion": 1,
+      "id": "9d59f711-9677-4093-a4f8-5ca282adb4e8",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "### Only proceed IF new column is not populated yet"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        80,
+        -100
+      ],
+      "typeVersion": 1,
+      "id": "7b6fbb8b-124a-4cd7-8650-ae37c41aab8c",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "### Run prompt for each row"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        380,
+        -100
+      ],
+      "typeVersion": 1,
+      "id": "e633d638-efd5-48dd-8cee-46d2ab45c2b9",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "### Parse data into proper format"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        680,
+        -100
+      ],
+      "typeVersion": 1,
+      "id": "92592717-a4dc-4bdd-a0c7-cf9ba719f5ac",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "### Aggregate results"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        880,
+        -100
+      ],
+      "typeVersion": 1,
+      "id": "ab9cc9a0-c3bd-4f10-9abe-9b48e829ead3",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "jsCode": "try {\n\t/***********************\n\t * 0.  Grab ALL incoming items at once\n\t **********************/\n\tconst allItems   = $input.all();           // ← every inbound bundle\n\tconst aggregated = [];                     // ← we’ll push results here\n\n\t/***********************\n\t * 1.  Process every item individually\n\t **********************/\n\tfor (const item of allItems) {\n\n\t\t/* 1.1 Pull raw text */\n\t\tconst rawOutput = item.json.output || \"\";\n\n\t\t/* 1.2 Strip ⁠  fences (json / html / any-tag) */\n\t\tconst jsonMatch = rawOutput.match(/```(?:json)?\\s*([\\s\\S]*?)\\s*```/)\n\t\tlet   cleanedOutput  = jsonMatch ? jsonMatch[1] : rawOutput;\n\n\t\t/* 1.3 Remove big HTML wrappers */\n\t\tcleanedOutput = cleanedOutput.replace(\n\t\t\t/<!DOCTYPE[^>]>|<html[^>]>|<\\/html>|<head[^>]>[\\s\\S]?<\\/head>|<body[^>]*>|<\\/body>/gi,\n\t\t\t''\n\t\t);\n\n\t\t/* 1.4 Nuke BOM + trim */\n\t\tcleanedOutput = cleanedOutput.replace(/^\\uFEFF/, '').trim();\n\n\t\t/* 1.5 Keep \\n \\r \\t, sanitize rest of the control chars */\n\t\tcleanedOutput = cleanedOutput.replace(/[\\u0000-\\u001F\\u007F]/g, c =>\n\t\t\t(c === '\\n' || c === '\\r' || c === '\\t') ? c : ' '\n\t\t);\n\n\t\t/* 1.6 Flatten HTML in JSON fields */\n\t\tcleanedOutput = cleanedOutput\n\t\t\t.replace(/>\\s+</g, '><')   // remove spaces between tags\n\t\t\t.replace(/\\s+/g, ' ')      // collapse multiple spaces\n\t\t\t.trim();\n\n\t\t/* 1.7 Parse JSON, 2-step fallback */\n\t\tlet parsedData;\n\t\ttry {\n\t\t\tparsedData = JSON.parse(cleanedOutput);\n\t\t} catch (e) {\n\t\t\tconst esc = cleanedOutput.replace(/>([^<]+)</g, (_, p1) => '>' + p1.replace(/\"/g, '\\\\\"') + '<');\n\t\t\tparsedData = JSON.parse(esc);\n\t\t}\n\n\t\t/* 1.8 Recursively turn any HTML strings into single-line text */\n\t\tfunction stripHtmlLines(d) {\n\t\t\tif (typeof d === 'string')\n\t\t\t\treturn d.replace(/[\\n\\r]+/g, ' ').replace(/\\s+/g, ' ').trim();\n\t\t\tif (Array.isArray(d))\n\t\t\t\treturn d.map(stripHtmlLines);\n\t\t\tif (d && typeof d === 'object') {\n\t\t\t\tconst obj = {};\n\t\t\t\tfor (const k in d) obj[k] = stripHtmlLines(d[k]);\n\t\t\t\treturn obj;\n\t\t\t}\n\t\t\treturn d;\n\t\t}\n\t\tparsedData = stripHtmlLines(parsedData);\n\n\t\t/* 1.9 Ensure we always push objects into the output array */\n\t\tif (Array.isArray(parsedData)) {\n\t\t\taggregated.push(...parsedData.map(o => ({ ...o })));\n\t\t} else if (parsedData && typeof parsedData === 'object') {\n\t\t\taggregated.push({ ...parsedData });\n\t\t} else {\n\t\t\tthrow new Error('Unsupported JSON format – expected array or object.');\n\t\t}\n\t}\n\n\t/***********************\n\t * 2.  Return everything we collected\n\t **********************/\n\treturn aggregated;          // ← Make/n8n will emit one item per element\n\n} catch (err) {\n\tthrow new Error('Failed to parse JSON output: ' + err.message);\n}"
+      },
+      "id": "f2676e3d-c16b-47b9-9317-05871d515931",
+      "name": "turn-into-table",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        760,
+        0
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "content": "### Parse data into proper format"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1100,
+        -100
+      ],
+      "typeVersion": 1,
+      "id": "5c2043c8-7202-4cc2-b70e-c5a31220a6a4",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "### Save results to Google Sheet"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1340,
+        -100
+      ],
+      "typeVersion": 1,
+      "id": "34054e56-2352-4fa8-bfc7-95beb5be34ec",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Search the internet to get the info.",
+        "method": "POST",
+        "url": "https://google.serper.dev/search",
+        "sendHeaders": true,
+        "parametersHeaders": {
+          "values": [
+            {
+              "name": "Content-Type",
+              "valueProvider": "fieldValue",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-KEY",
+              "valueProvider": "fieldValue",
+              "value": "113e7b9aec3009fa826684d4dd6cac20c01dfbda"
+            }
+          ]
+        },
+        "sendBody": true,
+        "parametersBody": {
+          "values": [
+            {
+              "name": "=q"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        520,
+        160
+      ],
+      "id": "a554b7d4-6ff8-4987-8e78-54f7e4c9596e",
+      "name": "serperTool"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1fDcN6oMc_p_UZfrsrha9E7puoO2fIqsdIVkirRFVXNA/edit?gid=463059905#gid=463059905",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1401081600,
+          "mode": "list",
+          "cachedResultName": "Data_v2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1fDcN6oMc_p_UZfrsrha9E7puoO2fIqsdIVkirRFVXNA/edit#gid=1401081600"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -320,
+        0
+      ],
+      "id": "6aa6e267-0268-4247-89fa-f7cbda5b9522",
+      "name": "get-current-keywords",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "y83s4dpWcYkOaLrS",
+          "name": "Google Sheets tech@scaile"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Schedule Trigger": [
+      {
+        "json": {
+          "timestamp": "2025-07-09T21:39:00.002+02:00",
+          "Readable date": "July 9th 2025, 9:39:00 pm",
+          "Readable time": "9:39:00 pm",
+          "Day of week": "Wednesday",
+          "Year": "2025",
+          "Month": "July",
+          "Day of month": "09",
+          "Hour": "21",
+          "Minute": "39",
+          "Second": "00",
+          "Timezone": "Europe/Berlin (UTC+02:00)"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "get-current-keywords",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "cluster",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "format-code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "cluster",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "format-code": {
+      "main": [
+        [
+          {
+            "node": "save-output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "cluster": {
+      "main": [
+        [
+          {
+            "node": "turn-into-table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "save-output": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "turn-into-table": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "serperTool": {
+      "ai_tool": [
+        [
+          {
+            "node": "cluster",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get-current-keywords": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "all",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": 1200
+  },
+  "versionId": "a124241d-0c54-4e6a-944c-218df02d7bc9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9e788a0915de7570e651e6a720e1b787d9d4f18c594ef5433bdf5da109f910c2"
+  },
+  "id": "ElM4a4goEj8kc4hC",
+  "tags": [
+    {
+      "createdAt": "2025-05-21T05:09:37.786Z",
+      "updatedAt": "2025-05-21T05:09:37.786Z",
+      "id": "wTwNbAyG3Be3qgK3",
+      "name": "fede"
+    }
+  ]
+}
