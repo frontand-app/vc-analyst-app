@@ -726,17 +726,17 @@ Mike Johnson,mike@example.com,StartupXYZ`}
                       </PopoverContent>
                     </Popover>
                   </div>
-                <Textarea
+                                <Textarea
                   id="prompt"
                     placeholder="Tell the AI what you want to learn about each row... (e.g., 'Score these leads from 1-10 and tell me which ones to focus on')"
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
-                    className="min-h-[80px] resize-none focus:ring-2 focus:ring-blue-500 border-gray-200"
+                    className="min-h-[80px] max-h-[300px] resize-y focus:ring-2 focus:ring-blue-500 border-gray-200"
                 />
                   <p className="text-xs text-gray-500 flex items-center gap-1">
                     <Sparkles className="w-3 h-3" />
-                    The AI will analyze each row according to your instructions
-                </p>
+                    The AI will analyze each row according to your instructions. Drag corner to expand box.
+                  </p>
               </div>
 
                 {/* Control Settings */}

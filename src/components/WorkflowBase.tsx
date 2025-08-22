@@ -1125,8 +1125,11 @@ OUTPUT (JSON only; array with single element):
                             placeholder={mode === 'vc-analyst' ? 'VC Analyst prompt will be generated from the fund rules below...' : 'Describe the task for each row...'}
                             value={inputValues.prompt || ''}
                             onChange={(e) => handleInputChange('prompt', e.target.value)}
-                            className="min-h-[140px] resize-none"
+                            className="min-h-[140px] max-h-[400px] resize-y"
                           />
+                          <p className="text-xs text-muted-foreground mt-1">
+                            💡 Drag the bottom-right corner to expand this box and see your full prompt
+                          </p>
                       </div>
 
                         <div>
@@ -1135,8 +1138,11 @@ OUTPUT (JSON only; array with single element):
                             placeholder={`Investment Score: 1-10 rating\nMarket Size: Small/Medium/Large\nRecommendation: Pass/Consider/Strong Interest\n\nTip: Leave empty to let AI decide the best output format.`}
                             value={inputValues.output_schema || ''}
                             onChange={(e) => handleInputChange('output_schema', e.target.value)}
-                            className="min-h-[140px] resize-none"
+                            className="min-h-[140px] max-h-[400px] resize-y"
                           />
+                          <p className="text-xs text-muted-foreground mt-1">
+                            💡 Drag the bottom-right corner to expand this box for detailed output schemas
+                          </p>
                         </div>
                     </div>
                   )}
