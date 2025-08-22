@@ -1152,9 +1152,7 @@ OUTPUT (JSON only; array with single element):
                           <label className="text-sm font-medium text-foreground mb-2 block">Output Format (Optional)</label>
                           <Textarea
                             placeholder={mode === 'vc-analyst' 
-                              ? `Example custom output format (leave empty for default VC analysis):
-
-Investment_Score: 1-10 numerical rating
+                              ? `Investment_Score: 1-10
 Market_Opportunity: Small/Medium/Large/Massive
 Competitive_Moat: None/Weak/Moderate/Strong
 Team_Quality: Early/Experienced/Exceptional
@@ -1162,14 +1160,10 @@ Technology_Risk: High/Medium/Low
 Revenue_Traction: Pre-revenue/Early/Scaling/Mature
 Investment_Recommendation: Pass/Consider/Priority/Must-Have
 Strategic_Fit_Score: 0-100%
-Due_Diligence_Priority: Low/Medium/High/Urgent
-
-💡 Leave empty to use standard VC analysis format with objective scores, relevance scores, and classifications.`
-                              : `Investment Score: 1-10 rating
-Market Size: Small/Medium/Large
-Recommendation: Pass/Consider/Strong Interest
-
-Tip: Leave empty to let AI decide the best output format.`}
+Due_Diligence_Priority: Low/Medium/High/Urgent`
+                              : `Investment_Score: 1-10
+Market_Size: Small/Medium/Large
+Recommendation: Pass/Consider/Strong Interest`}
                             value={inputValues.output_schema || ''}
                             onChange={(e) => handleInputChange('output_schema', e.target.value)}
                             className="min-h-[140px] max-h-[400px] resize-y"
@@ -1216,7 +1210,7 @@ Tip: Leave empty to let AI decide the best output format.`}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           <div>
                             <label className="text-sm text-foreground mb-1 block">Fund name</label>
-                            <Input value={vcFundName} onChange={(e) => setVcFundName(e.target.value)} />
+                            <Input value={vcFundName} onChange={(e) => setVcFundName(e.target.value)} placeholder="Your Fund" />
                         </div>
                           <div>
                             <label className="text-sm text-foreground mb-1 block">Stage allowlist</label>
@@ -1224,19 +1218,19 @@ Tip: Leave empty to let AI decide the best output format.`}
                       </div>
                           <div>
                             <label className="text-sm text-foreground mb-1 block">Launch vintage ≤ (months)</label>
-                            <Input value={vcVintageMonths} onChange={(e) => setVcVintageMonths(e.target.value)} />
+                            <Input value={vcVintageMonths} onChange={(e) => setVcVintageMonths(e.target.value)} placeholder="24" />
                           </div>
                           <div>
                             <label className="text-sm text-foreground mb-1 block">Min TRL</label>
-                            <Input value={vcTrlMin} onChange={(e) => setVcTrlMin(e.target.value)} />
+                            <Input value={vcTrlMin} onChange={(e) => setVcTrlMin(e.target.value)} placeholder="5" />
                           </div>
                           <div className="md:col-span-2">
                             <label className="text-sm text-foreground mb-1 block">Sectors</label>
-                            <Input value={vcSectors} onChange={(e) => setVcSectors(e.target.value)} />
+                            <Input value={vcSectors} onChange={(e) => setVcSectors(e.target.value)} placeholder="Sector A, Sector B" />
                           </div>
                           <div className="md:col-span-2">
                             <label className="text-sm text-foreground mb-1 block">Geographies (HQ)</label>
-                            <Input value={vcGeos} onChange={(e) => setVcGeos(e.target.value)} />
+                            <Input value={vcGeos} onChange={(e) => setVcGeos(e.target.value)} placeholder="North America, Europe" />
                           </div>
                         </div>
                         <div className="text-xs text-muted-foreground">The prompt above updates automatically from these fund rules.</div>
