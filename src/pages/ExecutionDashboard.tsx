@@ -135,12 +135,14 @@ const ExecutionDashboard: React.FC = () => {
       try {
         const api = await import('@/lib/executionApi');
         const data = await api.getExecutions();
+        console.log('ExecutionDashboard: Loaded executions:', data.length, data);
         if (!isMounted) return;
         setExecutions(data as unknown as WorkflowExecution[]);
         setFilteredExecutions(data as unknown as WorkflowExecution[]);
         // Lightweight polling every 1s to reflect progress and new runs
         interval = window.setInterval(async () => {
           const latest = await api.getExecutions();
+          console.log('ExecutionDashboard: Polling update - executions:', latest.length);
           if (!isMounted) return;
           setExecutions(latest as unknown as WorkflowExecution[]);
         }, 1000);

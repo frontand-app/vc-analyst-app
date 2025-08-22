@@ -56,7 +56,10 @@ const STORAGE_KEY = 'frontand_executions_v1';
 const persistExecutions = () => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(executions));
-  } catch {}
+    console.log('Persisted executions to localStorage:', executions.length, 'executions');
+  } catch (e) {
+    console.error('Failed to persist executions:', e);
+  }
 };
 
 (() => {
@@ -96,12 +99,16 @@ export const createExecution = async (request: CreateExecutionRequest): Promise<
   };
 
   executions.push(execution);
+  console.log('Added execution to array:', execution.id, 'Total executions:', executions.length);
   persistExecutions();
 
   // Only start mock processing if explicitly requested (for demo purposes)
   // Real API calls should update execution status directly via updateExecution
   if (request.useMockProcessing) {
+    console.log('Starting mock processing for:', execution.id);
     processExecution(execution.id, request.testMode);
+  } else {
+    console.log('Skipping mock processing for:', execution.id, '- using real API');
   }
 
   return execution;
