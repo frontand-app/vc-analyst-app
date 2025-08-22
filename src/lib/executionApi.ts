@@ -33,6 +33,7 @@ export interface CreateExecutionRequest {
   inputData: Record<string, any>;
   testMode?: boolean;
   userId?: string;
+  useMockProcessing?: boolean;
 }
 
 export interface UpdateExecutionRequest {
@@ -97,8 +98,11 @@ export const createExecution = async (request: CreateExecutionRequest): Promise<
   executions.push(execution);
   persistExecutions();
 
-  // Start processing asynchronously
-  processExecution(execution.id, request.testMode);
+  // Only start mock processing if explicitly requested (for demo purposes)
+  // Real API calls should update execution status directly via updateExecution
+  if (request.useMockProcessing) {
+    processExecution(execution.id, request.testMode);
+  }
 
   return execution;
 };

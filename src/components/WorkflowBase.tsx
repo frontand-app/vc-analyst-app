@@ -625,7 +625,8 @@ exclusion_reasons: Array of failed rules`;
         workflowId: config.id,
         inputData: requestData,
         testMode: testMode,
-        userId: user?.id
+        userId: user?.id,
+        useMockProcessing: false // Use real API processing, not mock
       });
       setCurrentExecutionId(exec.id);
 
