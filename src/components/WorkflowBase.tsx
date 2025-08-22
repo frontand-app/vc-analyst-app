@@ -194,10 +194,18 @@ const WorkflowBase: React.FC<WorkflowBaseProps> = ({ config }) => {
       setError(null);
     } else if (isMockMode && (config.id === 'loop-over-rows' && mode === 'vc-analyst')) {
       const mockCsv = 'Companies,Stage,HQ,TRL,Traction,IP,Founder\nSolarForge,Seed,Germany,5,Paying pilot with utility,Filed,Repeat founder\nGridAI,Pre-seed,USA,6,LOIs with energy clients,Granted,PhD technical';
+      const defaultOutputSchema = `startup_name: Company name
+stage: Pre-seed/Seed/Series A/Later
+sector_path: main → sub → use_case
+objective_score: 0-8
+relevance_score: 0-100%
+classification: High Priority/Medium Fit/Not Relevant/Out of Scope
+summary_txt: Plain text summary
+exclusion_reasons: Array of failed rules`;
       setInputValues({
         csv_data: mockCsv,
         prompt: buildVcAnalystPrompt(),
-        output_schema: ''
+        output_schema: defaultOutputSchema
       });
       try {
         const parsed = parseCSVData(mockCsv);
