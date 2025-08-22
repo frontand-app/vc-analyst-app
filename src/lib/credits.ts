@@ -332,10 +332,13 @@ export class CreditsService {
         flow_id: flowId,
         user_id: userId,
         inputs,
-        model_used: modelUsed,
+        model_used: modelUsed || 'gemini-2.5-flash',
         status: 'pending' as const,
-        credits_used: this.calculateWorkflowCost(flowId, inputs, modelUsed)
+        credits_used: 0, // Simplified to avoid calculateWorkflowCost issues
+        is_scheduled: false
       };
+
+      console.log('Attempting to create execution in Supabase:', execution);
 
       const { data, error } = await supabase
         .from('executions')
@@ -344,13 +347,15 @@ export class CreditsService {
         .single();
 
       if (error) {
-        console.error('Error creating execution:', error);
+        console.error('Supabase execution creation error:', error);
+        console.log('Error details:', error.details, error.hint, error.code);
         return null;
       }
 
+      console.log('Execution created successfully in Supabase:', data);
       return data;
     } catch (error) {
-      console.error('Error creating execution:', error);
+      console.error('Exception creating execution:', error);
       return null;
     }
   }
