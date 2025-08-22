@@ -626,6 +626,7 @@ exclusion_reasons: Array of failed rules`;
       console.log('Sending request to:', config.endpoint, requestData);
 
       // Create execution record (for dashboard) when starting
+      console.log('Creating execution for:', config.id, 'testMode:', testMode);
       const exec = await createExecution({
         workflowId: config.id,
         inputData: requestData,
@@ -633,6 +634,7 @@ exclusion_reasons: Array of failed rules`;
         userId: user?.id,
         useMockProcessing: false // Use real API processing, not mock
       });
+      console.log('Execution created:', exec.id);
       setCurrentExecutionId(exec.id);
 
       // Endpoint: allow per-mode override while we unify backend
@@ -677,6 +679,7 @@ exclusion_reasons: Array of failed rules`;
       if (currentExecutionId) {
         // Build downloadable files (CSV/JSON) for the dashboard
         const files = buildFilesForResults(config.id, result);
+        console.log('Updating execution:', currentExecutionId, 'with results:', result);
         await updateExecution(currentExecutionId, {
           status: 'completed',
           results: result,
@@ -684,6 +687,9 @@ exclusion_reasons: Array of failed rules`;
           progress: 100,
           completedAt: new Date().toISOString()
         });
+        console.log('Execution updated successfully');
+      } else {
+        console.warn('No currentExecutionId - execution not tracked');
       }
       
     } catch (err: any) {
