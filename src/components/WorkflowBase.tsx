@@ -295,11 +295,25 @@ OUTPUT (JSON only; array with single element):
 `;
   };
 
-  // Keep VC Analyst prompt in sync with variables
+  // Keep VC Analyst prompt in sync with variables and set default output format
   useEffect(() => {
     if (config.id === 'loop-over-rows' && mode === 'vc-analyst') {
       if (!inputValues.prompt || inputValues.prompt.includes('UNIVERSAL INVESTMENT INTELLIGENCE SYSTEM')) {
         handleInputChange('prompt', buildVcAnalystPrompt());
+      }
+      
+      // Set default output schema if not already set
+      if (!inputValues.output_schema) {
+        const defaultOutputSchema = `Investment_Score: 1-10
+Market_Opportunity: Small/Medium/Large/Massive
+Competitive_Moat: None/Weak/Moderate/Strong
+Team_Quality: Early/Experienced/Exceptional
+Technology_Risk: High/Medium/Low
+Revenue_Traction: Pre-revenue/Early/Scaling/Mature
+Investment_Recommendation: Pass/Consider/Priority/Must-Have
+Strategic_Fit_Score: 0-100%
+Due_Diligence_Priority: Low/Medium/High/Urgent`;
+        handleInputChange('output_schema', defaultOutputSchema);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1151,19 +1165,6 @@ OUTPUT (JSON only; array with single element):
                         <div>
                           <label className="text-sm font-medium text-foreground mb-2 block">Output Format (Optional)</label>
                           <Textarea
-                            placeholder={mode === 'vc-analyst' 
-                              ? `Investment_Score: 1-10
-Market_Opportunity: Small/Medium/Large/Massive
-Competitive_Moat: None/Weak/Moderate/Strong
-Team_Quality: Early/Experienced/Exceptional
-Technology_Risk: High/Medium/Low
-Revenue_Traction: Pre-revenue/Early/Scaling/Mature
-Investment_Recommendation: Pass/Consider/Priority/Must-Have
-Strategic_Fit_Score: 0-100%
-Due_Diligence_Priority: Low/Medium/High/Urgent`
-                              : `Investment_Score: 1-10
-Market_Size: Small/Medium/Large
-Recommendation: Pass/Consider/Strong Interest`}
                             value={inputValues.output_schema || ''}
                             onChange={(e) => handleInputChange('output_schema', e.target.value)}
                             className="min-h-[140px] max-h-[400px] resize-y"
@@ -1210,27 +1211,27 @@ Recommendation: Pass/Consider/Strong Interest`}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           <div>
                             <label className="text-sm text-foreground mb-1 block">Fund name</label>
-                            <Input value={vcFundName} onChange={(e) => setVcFundName(e.target.value)} placeholder="Your Fund" />
+                            <Input value={vcFundName} onChange={(e) => setVcFundName(e.target.value)} />
                         </div>
                           <div>
                             <label className="text-sm text-foreground mb-1 block">Stage allowlist</label>
-                            <Input value={vcStages} onChange={(e) => setVcStages(e.target.value)} placeholder="Pre-seed, Seed, Series A" />
+                            <Input value={vcStages} onChange={(e) => setVcStages(e.target.value)} />
                       </div>
                           <div>
                             <label className="text-sm text-foreground mb-1 block">Launch vintage ≤ (months)</label>
-                            <Input value={vcVintageMonths} onChange={(e) => setVcVintageMonths(e.target.value)} placeholder="24" />
+                            <Input value={vcVintageMonths} onChange={(e) => setVcVintageMonths(e.target.value)} />
                           </div>
                           <div>
                             <label className="text-sm text-foreground mb-1 block">Min TRL</label>
-                            <Input value={vcTrlMin} onChange={(e) => setVcTrlMin(e.target.value)} placeholder="5" />
+                            <Input value={vcTrlMin} onChange={(e) => setVcTrlMin(e.target.value)} />
                           </div>
                           <div className="md:col-span-2">
                             <label className="text-sm text-foreground mb-1 block">Sectors</label>
-                            <Input value={vcSectors} onChange={(e) => setVcSectors(e.target.value)} placeholder="Sector A, Sector B" />
+                            <Input value={vcSectors} onChange={(e) => setVcSectors(e.target.value)} />
                           </div>
                           <div className="md:col-span-2">
                             <label className="text-sm text-foreground mb-1 block">Geographies (HQ)</label>
-                            <Input value={vcGeos} onChange={(e) => setVcGeos(e.target.value)} placeholder="North America, Europe" />
+                            <Input value={vcGeos} onChange={(e) => setVcGeos(e.target.value)} />
                           </div>
                         </div>
                         <div className="text-xs text-muted-foreground">The prompt above updates automatically from these fund rules.</div>
