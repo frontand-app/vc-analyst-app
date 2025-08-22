@@ -304,15 +304,14 @@ OUTPUT (JSON only; array with single element):
       
       // Set default output schema if not already set
       if (!inputValues.output_schema) {
-        const defaultOutputSchema = `Investment_Score: 1-10
-Market_Opportunity: Small/Medium/Large/Massive
-Competitive_Moat: None/Weak/Moderate/Strong
-Team_Quality: Early/Experienced/Exceptional
-Technology_Risk: High/Medium/Low
-Revenue_Traction: Pre-revenue/Early/Scaling/Mature
-Investment_Recommendation: Pass/Consider/Priority/Must-Have
-Strategic_Fit_Score: 0-100%
-Due_Diligence_Priority: Low/Medium/High/Urgent`;
+        const defaultOutputSchema = `startup_name: Company name
+stage: Pre-seed/Seed/Series A/Later
+sector_path: main → sub → use_case
+objective_score: 0-8
+relevance_score: 0-100%
+classification: High Priority/Medium Fit/Not Relevant/Out of Scope
+summary_txt: Plain text summary
+exclusion_reasons: Array of failed rules`;
         handleInputChange('output_schema', defaultOutputSchema);
       }
     }
