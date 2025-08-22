@@ -133,30 +133,20 @@ const ExecutionDashboard: React.FC = () => {
     let interval: number | undefined;
     (async () => {
       try {
-        const { CreditsService } = await import('@/lib/credits');
-        // Get current user to load their executions
-        const { data: session } = await (await import('@/lib/supabase')).supabase.auth.getSession();
-        const userId = session?.session?.user?.id;
+        const api = await import('@/lib/executionApi');
+        const data = await api.getExecutions();
+        console.log('ExecutionDashboard: Loaded executions:', data.length, data);
+        if (!isMounted) return;
+        setExecutions(data as unknown as WorkflowExecution[]);
+        setFilteredExecutions(data as unknown as WorkflowExecution[]);
         
-        if (userId) {
-          const data = await CreditsService.getExecutionHistory(userId, 50);
-          console.log('ExecutionDashboard: Loaded executions from Supabase:', data.length, data);
+        // Lightweight polling every 1s to reflect progress and new runs
+        interval = window.setInterval(async () => {
+          const latest = await api.getExecutions();
+          console.log('ExecutionDashboard: Polling update - executions:', latest.length);
           if (!isMounted) return;
-          setExecutions(data as unknown as WorkflowExecution[]);
-          setFilteredExecutions(data as unknown as WorkflowExecution[]);
-          
-          // Lightweight polling every 5s to reflect progress and new runs
-          interval = window.setInterval(async () => {
-            const latest = await CreditsService.getExecutionHistory(userId, 50);
-            console.log('ExecutionDashboard: Polling update from Supabase - executions:', latest.length);
-            if (!isMounted) return;
-            setExecutions(latest as unknown as WorkflowExecution[]);
-          }, 5000);
-        } else {
-          console.log('No user session - showing empty executions');
-          setExecutions([]);
-          setFilteredExecutions([]);
-        }
+          setExecutions(latest as unknown as WorkflowExecution[]);
+        }, 1000);
       } catch (e) {
         if (!isMounted) return;
         setExecutions([]);

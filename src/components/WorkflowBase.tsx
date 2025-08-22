@@ -626,16 +626,17 @@ exclusion_reasons: Array of failed rules`;
       
       console.log('Sending request to:', config.endpoint, requestData);
 
-      // Create execution record in Supabase (for dashboard) when starting
+      // Create execution record (localStorage with quota management)
       console.log('Creating execution for:', config.id, 'testMode:', testMode);
-      if (user?.id) {
-        const exec = await CreditsService.createExecution(config.id, user.id, requestData, 'gemini-2.5-flash');
-        console.log('Execution created in Supabase:', exec?.id);
-        setCurrentExecutionId(exec?.id || null);
-      } else {
-        console.warn('No user ID - execution not tracked');
-        setCurrentExecutionId(null);
-      }
+      const exec = await createExecution({
+        workflowId: config.id,
+        inputData: requestData,
+        testMode: testMode,
+        userId: user?.id,
+        useMockProcessing: false
+      });
+      console.log('Execution created:', exec.id);
+      setCurrentExecutionId(exec.id);
 
       // Endpoint: allow per-mode override while we unify backend
       // Single unified endpoint handles all modes
@@ -676,18 +677,20 @@ exclusion_reasons: Array of failed rules`;
         setShowResults(true);
       }, 800);
 
-      if (currentExecutionId && user?.id) {
-        // Update execution in Supabase with results
-        console.log('Updating execution in Supabase:', currentExecutionId, 'with results');
-        await CreditsService.updateExecution(currentExecutionId, {
+      if (currentExecutionId) {
+        // Update execution with results
+        console.log('Updating execution:', currentExecutionId, 'with results');
+        const files = buildFilesForResults(config.id, result);
+        await updateExecution(currentExecutionId, {
           status: 'completed',
-          outputs: result,
-          execution_time_ms: Date.now() - Date.parse(new Date().toISOString()),
-          completed_at: new Date().toISOString()
+          results: result,
+          files,
+          progress: 100,
+          completedAt: new Date().toISOString()
         });
-        console.log('Execution updated successfully in Supabase');
+        console.log('Execution updated successfully');
       } else {
-        console.warn('No currentExecutionId or user - execution not tracked');
+        console.warn('No currentExecutionId - execution not tracked');
       }
       
     } catch (err: any) {
