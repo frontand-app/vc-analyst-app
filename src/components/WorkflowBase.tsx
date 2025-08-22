@@ -1151,7 +1151,25 @@ OUTPUT (JSON only; array with single element):
                         <div>
                           <label className="text-sm font-medium text-foreground mb-2 block">Output Format (Optional)</label>
                           <Textarea
-                            placeholder={`Investment Score: 1-10 rating\nMarket Size: Small/Medium/Large\nRecommendation: Pass/Consider/Strong Interest\n\nTip: Leave empty to let AI decide the best output format.`}
+                            placeholder={mode === 'vc-analyst' 
+                              ? `Example custom output format (leave empty for default VC analysis):
+
+Investment_Score: 1-10 numerical rating
+Market_Opportunity: Small/Medium/Large/Massive
+Competitive_Moat: None/Weak/Moderate/Strong
+Team_Quality: Early/Experienced/Exceptional
+Technology_Risk: High/Medium/Low
+Revenue_Traction: Pre-revenue/Early/Scaling/Mature
+Investment_Recommendation: Pass/Consider/Priority/Must-Have
+Strategic_Fit_Score: 0-100%
+Due_Diligence_Priority: Low/Medium/High/Urgent
+
+💡 Leave empty to use standard VC analysis format with objective scores, relevance scores, and classifications.`
+                              : `Investment Score: 1-10 rating
+Market Size: Small/Medium/Large
+Recommendation: Pass/Consider/Strong Interest
+
+Tip: Leave empty to let AI decide the best output format.`}
                             value={inputValues.output_schema || ''}
                             onChange={(e) => handleInputChange('output_schema', e.target.value)}
                             className="min-h-[140px] max-h-[400px] resize-y"
