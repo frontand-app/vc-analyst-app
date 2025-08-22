@@ -55,10 +55,27 @@ let executionIdCounter = 1;
 const STORAGE_KEY = 'frontand_executions_v1';
 const persistExecutions = () => {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(executions));
-    console.log('Persisted executions to localStorage:', executions.length, 'executions');
+    // Keep only the last 50 executions to prevent localStorage quota issues
+    const recentExecutions = executions.slice(-50);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(recentExecutions));
+    console.log('Persisted executions to localStorage:', recentExecutions.length, 'executions (keeping last 50)');
+    
+    // Update the in-memory array to match what we persisted
+    executions.length = 0;
+    executions.push(...recentExecutions);
   } catch (e) {
     console.error('Failed to persist executions:', e);
+    // If still failing, clear localStorage and try with just the latest execution
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+      const latestOnly = executions.slice(-1);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(latestOnly));
+      executions.length = 0;
+      executions.push(...latestOnly);
+      console.log('Cleared localStorage and saved latest execution only');
+    } catch (e2) {
+      console.error('Complete localStorage failure:', e2);
+    }
   }
 };
 

@@ -21,6 +21,7 @@ import GoogleSearchToggle from '@/components/shared/GoogleSearchToggle';
 import ColumnSelectorChips from '@/components/shared/ColumnSelectorChips';
 import { useAuth } from '@/hooks/useAuth';
 import { createExecution, updateExecution, buildFilesForResults } from '@/lib/executionApi';
+import { CreditsService } from '@/lib/credits';
 import { buildLoopOverRowsPayload, buildCrawlPayload, CrawlTask } from '@/lib/modes';
 import * as LucideIcons from 'lucide-react';
 import { TableOutput, TableData } from '@/components/TableOutput';
@@ -625,17 +626,16 @@ exclusion_reasons: Array of failed rules`;
       
       console.log('Sending request to:', config.endpoint, requestData);
 
-      // Create execution record (for dashboard) when starting
+      // Create execution record in Supabase (for dashboard) when starting
       console.log('Creating execution for:', config.id, 'testMode:', testMode);
-      const exec = await createExecution({
-        workflowId: config.id,
-        inputData: requestData,
-        testMode: testMode,
-        userId: user?.id,
-        useMockProcessing: false // Use real API processing, not mock
-      });
-      console.log('Execution created:', exec.id);
-      setCurrentExecutionId(exec.id);
+      if (user?.id) {
+        const exec = await CreditsService.createExecution(config.id, user.id, requestData, 'gemini-2.5-flash');
+        console.log('Execution created in Supabase:', exec?.id);
+        setCurrentExecutionId(exec?.id || null);
+      } else {
+        console.warn('No user ID - execution not tracked');
+        setCurrentExecutionId(null);
+      }
 
       // Endpoint: allow per-mode override while we unify backend
       // Single unified endpoint handles all modes
@@ -676,20 +676,18 @@ exclusion_reasons: Array of failed rules`;
         setShowResults(true);
       }, 800);
 
-      if (currentExecutionId) {
-        // Build downloadable files (CSV/JSON) for the dashboard
-        const files = buildFilesForResults(config.id, result);
-        console.log('Updating execution:', currentExecutionId, 'with results:', result);
-        await updateExecution(currentExecutionId, {
+      if (currentExecutionId && user?.id) {
+        // Update execution in Supabase with results
+        console.log('Updating execution in Supabase:', currentExecutionId, 'with results');
+        await CreditsService.updateExecution(currentExecutionId, {
           status: 'completed',
-          results: result,
-          files,
-          progress: 100,
-          completedAt: new Date().toISOString()
+          outputs: result,
+          execution_time_ms: Date.now() - Date.parse(new Date().toISOString()),
+          completed_at: new Date().toISOString()
         });
-        console.log('Execution updated successfully');
+        console.log('Execution updated successfully in Supabase');
       } else {
-        console.warn('No currentExecutionId - execution not tracked');
+        console.warn('No currentExecutionId or user - execution not tracked');
       }
       
     } catch (err: any) {
