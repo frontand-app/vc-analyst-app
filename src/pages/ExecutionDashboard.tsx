@@ -92,14 +92,25 @@ const ExecutionDashboard: React.FC = () => {
 
   const downloadResultCSV = (execution: WorkflowExecution) => {
     try {
+      if (!execution.results) {
+        alert('No results available for download. This execution may still be processing or failed to complete.');
+        return;
+      }
+
       const normalized = normalizeResult(execution.workflowId, execution.results);
       const rows = normalized.rows;
-      if (!rows || rows.length === 0) return;
+      
+      if (!rows || rows.length === 0) {
+        alert('No data rows found in results. The execution may have failed or returned empty results.');
+        return;
+      }
+
       const headers = normalized.columns;
       const escape = (v: any) => {
         const s = v === null || v === undefined ? '' : String(v);
         return s.includes(',') || s.includes('\n') || s.includes('"') ? '"' + s.replace(/"/g, '""') + '"' : s;
       };
+      
       const csv = [headers.join(','), ...rows.map(r => headers.map(h => escape(r[h])).join(','))].join('\n');
       const blob = new Blob([csv], { type: 'text/csv' });
       const url = URL.createObjectURL(blob);
@@ -110,7 +121,10 @@ const ExecutionDashboard: React.FC = () => {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-    } catch {}
+    } catch (error) {
+      console.error('CSV download error:', error);
+      alert('Failed to download CSV. Please try again or contact support if the issue persists.');
+    }
   };
 
   // Load executions and subscribe to changes/poll
@@ -413,7 +427,15 @@ const ExecutionDashboard: React.FC = () => {
                               <DialogTitle>Execution {execution.id}</DialogTitle>
                             </DialogHeader>
                             <div className="text-xs overflow-auto max-h-[70vh] p-2 bg-gray-50 rounded">
-                              <pre>{JSON.stringify(execution.results ?? execution, null, 2)}</pre>
+                              {execution.results ? (
+                                <pre>{JSON.stringify(execution.results, null, 2)}</pre>
+                              ) : (
+                                <div className="text-center py-8 text-gray-500">
+                                  <FileText className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                                  <p>No results available</p>
+                                  <p className="text-xs">This execution may still be processing or failed to complete.</p>
+                                </div>
+                              )}
                             </div>
                           </DialogContent>
                         </Dialog>

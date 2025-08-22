@@ -336,10 +336,30 @@ const processExecution = async (executionId: string, testMode: boolean = false) 
 const generateMockResults = (workflowId: string, inputData: any, testMode: boolean) => {
   switch (workflowId) {
     case 'loop-over-rows':
+      // Generate realistic VC analyst results
+      const mockCompanies = testMode ? 
+        ['SolarForge', 'GridAI'] : 
+        ['SolarForge', 'GridAI', 'EnergyFlow', 'ClimateScale', 'PowerGrid AI', 'GreenTech Solutions'];
+      
       return {
-        rowsProcessed: testMode ? 5 : 150,
-        successRate: 94,
-        avgProcessingTime: 2.3
+        data: mockCompanies.reduce((acc, company, index) => {
+          acc[`row_${index + 1}`] = [
+            company,
+            ['Pre-seed', 'Seed', 'Series A'][Math.floor(Math.random() * 3)],
+            `ClimateTech → Energy Storage → ${['Battery Tech', 'Grid Management', 'Smart Charging'][Math.floor(Math.random() * 3)]}`,
+            Math.floor(Math.random() * 3) + 6, // objective_score 6-8
+            Math.floor(Math.random() * 25) + 75, // relevance_score 75-100%
+            ['High Priority', 'Medium Fit'][Math.floor(Math.random() * 2)],
+            `${company} shows strong potential in the energy sector with proven technology and experienced team.`,
+            []
+          ];
+          return acc;
+        }, {} as Record<string, any[]>),
+        headers: ['startup_name', 'stage', 'sector_path', 'objective_score', 'relevance_score', 'classification', 'summary_txt', 'exclusion_reasons'],
+        total_rows: mockCompanies.length,
+        successful_rows: mockCompanies.length,
+        failed_rows: 0,
+        webhook_sent: false
       };
     
     case 'crawl4imprint':
