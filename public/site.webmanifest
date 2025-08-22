@@ -1,7 +1,7 @@
 {
-  "name": "Front& - AI Workflow Automation Platform",
-  "short_name": "Front&",
-  "description": "Transform your data processing with AI-powered workflows",
+  "name": "VC Analyst - AI-Powered Startup Analysis Platform",
+  "short_name": "VC Analyst",
+  "description": "AI-powered venture capital analysis platform for startup research and investment evaluation",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

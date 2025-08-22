@@ -1,11 +1,11 @@
 import { WorkflowConfig } from '@/components/WorkflowBase';
 import { BarChart3 } from 'lucide-react';
 
-// VC Analyst - Only Loop Over Rows workflow
+// VC Analyst - AI-powered startup analysis workflow
 export const workflows: Record<string, WorkflowConfig> = {
   'loop-over-rows': {
     id: 'loop-over-rows',
-    title: 'VC Analyst - Loop Over Rows',
+    title: 'VC Analyst',
     description: 'AI-powered analysis for venture capital research and startup evaluation',
     icon: BarChart3,
     color: 'blue',

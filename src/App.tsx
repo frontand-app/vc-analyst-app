@@ -1,34 +1,35 @@
 
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import FlowLibrary from "./pages/FlowLibrary";
-import WorkflowRunner from "./pages/WorkflowRunner";
-import Dashboard from "./pages/Dashboard";
-import Auth from "./pages/Auth";
-import Documentation from "./pages/Documentation";
-import Analytics from "./pages/Analytics";
-import About from "./pages/About";
-import WorkflowCreator from "./pages/WorkflowCreator";
-import OAuthCallbackPage from "./pages/OAuthCallback";
-import Developer from "./pages/Developer";
-import ExecutionDashboard from "./pages/ExecutionDashboard";
-import Search from "./pages/Search";
-import Layout from "./components/Layout";
-import { AuthProvider } from "./components/auth/AuthProvider";
 
-const queryClient = new QueryClient();
+import Layout from "@/components/Layout";
+import Index from "@/pages/Index";
+import WorkflowRunner from "@/pages/WorkflowRunner";
+import Dashboard from "@/pages/Dashboard";
+import ExecutionDashboard from "@/pages/ExecutionDashboard";
+import Auth from "@/pages/Auth";
+import OAuthCallbackPage from "@/pages/OAuthCallback";
+import NotFound from "@/pages/NotFound";
+import { AuthProvider } from "@/components/auth/AuthProvider";
+import { useParams } from "react-router-dom";
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      retry: 1,
+    },
+  },
+});
+
+// Simple redirect component for legacy routes
 const WorkflowRedirect = () => {
   const { id } = useParams<{ id: string }>();
-  return <Navigate to={`/search/${id}`} replace />;
+  return <Navigate to={`/workflow/${id}`} replace />;
 };
-
-// Universal workflow runner - handles all workflows via the registry
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -40,20 +41,14 @@ const App = () => (
           <Layout>
             <Routes>
               <Route path="/" element={<Index />} />
-              {/* Redirect /flows to /search for consistency */}
-              <Route path="/flows" element={<Navigate to="/search" replace />} />
-              <Route path="/flows/:id" element={<Navigate to="/search/:id" replace />} />
-              <Route path="/search" element={<Search />} />
-              <Route path="/search/:id" element={<WorkflowRunner />} />
-              {/* No redirect needed - WorkflowRunner will handle the mode */}
-              <Route path="/workflows/:id" element={<WorkflowRedirect />} />
+              {/* Main VC analyst workflow route */}
+              <Route path="/workflow/:id" element={<WorkflowRunner />} />
+              {/* Legacy redirects */}
+              <Route path="/search/:id" element={<WorkflowRedirect />} />
+              <Route path="/flows/:id" element={<WorkflowRedirect />} />
+              {/* Admin routes */}
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/executions" element={<ExecutionDashboard />} />
-              <Route path="/developer" element={<Developer />} />
-              <Route path="/docs" element={<Documentation />} />
-              <Route path="/analytics" element={<Analytics />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/creators/new" element={<WorkflowCreator />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/oauth/callback/:service" element={<OAuthCallbackPage />} />
               <Route path="*" element={<NotFound />} />

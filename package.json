@@ -2,7 +2,7 @@
   "name": "vc-analyst-app",
   "private": true,
   "version": "0.0.0",
-  "description": "Frontend application for Front& workflow automation platform",
+  "description": "AI-powered venture capital analysis platform for startup research and investment evaluation",
   "type": "module",
   "scripts": {
     "dev": "vite",
