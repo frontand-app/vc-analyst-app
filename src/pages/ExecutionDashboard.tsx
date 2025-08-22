@@ -133,20 +133,43 @@ const ExecutionDashboard: React.FC = () => {
     let interval: number | undefined;
     (async () => {
       try {
-        const api = await import('@/lib/executionApi');
-        const data = await api.getExecutions();
-        console.log('ExecutionDashboard: Loaded executions:', data.length, data);
-        if (!isMounted) return;
-        setExecutions(data as unknown as WorkflowExecution[]);
-        setFilteredExecutions(data as unknown as WorkflowExecution[]);
+        const { CreditsService } = await import('@/lib/credits');
+        const { supabase } = await import('@/lib/supabase');
         
-        // Lightweight polling every 1s to reflect progress and new runs
-        interval = window.setInterval(async () => {
-          const latest = await api.getExecutions();
-          console.log('ExecutionDashboard: Polling update - executions:', latest.length);
-          if (!isMounted) return;
-          setExecutions(latest as unknown as WorkflowExecution[]);
-        }, 1000);
+        // Get current user to load their executions
+        const { data: session } = await supabase.auth.getSession();
+        const userId = session?.session?.user?.id;
+        
+        if (userId) {
+          try {
+            const data = await CreditsService.getExecutionHistory(userId, 50);
+            console.log('ExecutionDashboard: Loaded executions from Supabase:', data.length, data);
+            if (!isMounted) return;
+            setExecutions(data as unknown as WorkflowExecution[]);
+            setFilteredExecutions(data as unknown as WorkflowExecution[]);
+            
+            // Lightweight polling every 5s to reflect progress and new runs
+            interval = window.setInterval(async () => {
+              try {
+                const latest = await CreditsService.getExecutionHistory(userId, 50);
+                console.log('ExecutionDashboard: Polling update from Supabase - executions:', latest.length);
+                if (!isMounted) return;
+                setExecutions(latest as unknown as WorkflowExecution[]);
+              } catch (pollError) {
+                console.error('Polling error:', pollError);
+              }
+            }, 5000);
+          } catch (error) {
+            console.error('Failed to load executions from Supabase:', error);
+            console.log('Note: executions table may not exist in Supabase');
+            setExecutions([]);
+            setFilteredExecutions([]);
+          }
+        } else {
+          console.log('No user session - please log in to see executions');
+          setExecutions([]);
+          setFilteredExecutions([]);
+        }
       } catch (e) {
         if (!isMounted) return;
         setExecutions([]);

@@ -626,17 +626,27 @@ exclusion_reasons: Array of failed rules`;
       
       console.log('Sending request to:', config.endpoint, requestData);
 
-      // Create execution record (localStorage with quota management)
+      // Create execution record in Supabase
       console.log('Creating execution for:', config.id, 'testMode:', testMode);
-      const exec = await createExecution({
-        workflowId: config.id,
-        inputData: requestData,
-        testMode: testMode,
-        userId: user?.id,
-        useMockProcessing: false
-      });
-      console.log('Execution created:', exec.id);
-      setCurrentExecutionId(exec.id);
+      if (user?.id) {
+        try {
+          const exec = await CreditsService.createExecution(config.id, user.id, requestData, 'gemini-2.5-flash');
+          if (exec?.id) {
+            console.log('Execution created in Supabase:', exec.id);
+            setCurrentExecutionId(exec.id);
+          } else {
+            console.error('Execution creation returned null');
+            setCurrentExecutionId(`fallback_${Date.now()}`);
+          }
+        } catch (error) {
+          console.error('Failed to create execution in Supabase:', error);
+          console.log('Note: You may need to create the executions table in Supabase dashboard');
+          setCurrentExecutionId(`fallback_${Date.now()}`);
+        }
+      } else {
+        console.warn('No user ID - execution not tracked (user must be logged in)');
+        setCurrentExecutionId(null);
+      }
 
       // Endpoint: allow per-mode override while we unify backend
       // Single unified endpoint handles all modes
